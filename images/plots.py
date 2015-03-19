@@ -182,7 +182,10 @@ if 'Fig2' in option:
         w = csv.writer(f)
         w.writerow(['Source Data for Fig. 2'])
         w.writerow(['Precipitation values for CR1, CR2, CR3 and CR1-3'])
-        w.writerows([['%6.2f' % p for p in P] for P in Pall])
+        w.writerow(['Note: the raw data here is sub-sampled by 50% to fit ' \
+                    'into the 30 MB limit. Use the code to generate the full ' \
+                    'set of raw data.'])
+        w.writerows([['%6.2f' % p for p in P[::2]] for P in Pall])
 
 if 'Fig3' in option:
 
@@ -495,7 +498,7 @@ if 'EDFig2' in option:
     diffstd = np.ma.sqrt((np.std(foc[(nmon / 2):]) ** 2 + np.std(foc[:(nmon / 2)]) ** 2) / (nmon / 2))
     print(diffmean, 2 * diffstd)
 
-if 'EDFig3' in option:
+if 'EDFig4' in option:
 
     inpath1 = '%strend/P_reconstruct/' % datapath
     inpath2 = '%strend/precip_data/' % datapath
@@ -534,15 +537,15 @@ if 'EDFig3' in option:
     cb = plt.colorbar(mappable = mp, cax = plt.axes([0.875, 0.11, 0.01, 0.775]),
         orientation = 'vertical', ticks = np.linspace(-vmax, vmax, 5), extend = 'both', extendfrac = 0.1 / nvar)
     cb.set_label('mm / day')
-    plt.savefig('EDFig3.jpg', dpi = 300)
+    plt.savefig('EDFig4.jpg', dpi = 300)
     plt.close()
 
     # function to calculate RMSE
     rmse = lambda x, y : np.ma.sqrt(np.ma.mean((x - y) ** 2))
 
     # write to text file the correlations and RMSEs
-    with open('tab_EDFig3.txt', 'w') as f:
-        f.write('Corr. (upper-right) and RMSE (lower-left) of plots in ED Fig. 3\n\n')
+    with open('tab_EDFig4.txt', 'w') as f:
+        f.write('Corr. (upper-right) and RMSE (lower-left) of plots in ED Fig. 4\n\n')
         for v1, var1 in enumerate(variables):
             if v1 == 0:
                 f.write(''.join(['%7s' % ''] + ['%7.3s' % spl for spl in subpltlab[:len(variables)]]
@@ -558,16 +561,16 @@ if 'EDFig3' in option:
                     f.write('%7s' % '-----')
             f.write('\n')
 
-    np.savetxt('EDFig3.txt', [delta(var) for var in variables], delimiter = ',', fmt = '%6.3f')
-    with open('EDFig3.txt', 'r') as f:
-        with open('EDFig3.csv', 'w') as g:
-            g.write('"Source Data for Extended Data Fig. 3"\n')
+    np.savetxt('EDFig4.txt', [delta(var) for var in variables], delimiter = ',', fmt = '%6.3f')
+    with open('EDFig4.txt', 'r') as f:
+        with open('EDFig4.csv', 'w') as g:
+            g.write('"Source Data for Extended Data Fig. 4"\n')
             g.write('"Each line is one panel; each value is the change in each grid box ' \
                     'of the ISCCP equal-area grid between 30°N/S."\n')
             g.write(f.read())
-    os.remove('EDFig3.txt')
+    os.remove('EDFig4.txt')
 
-if 'EDFig4' in option:
+if 'EDFig5' in option:
 
     import calendar as cal
 
@@ -634,23 +637,25 @@ if 'EDFig4' in option:
     plt.text(-0.1, 1.1, subpltlab[1], fontweight = 'bold', transform = plt.gca().transAxes)
     cb = plt.colorbar(mappable = mp, cax = plt.axes([0.875, 0.125, 0.01, 0.3]),
         orientation = 'vertical', ticks = np.linspace(-0.05, 0.05, 5), extend = 'both', extendfrac = 0.2 / nvar)
-    cb.set_label('mm / day')
 
-    plt.savefig('EDFig4.jpg', dpi = 300)
+    plt.savefig('EDFig5.jpg', dpi = 300)
     plt.close()
 
-    np.savetxt('EDFig4.txt', [delta(var) for var in variables], delimiter = ',', fmt = '%6.3f')
-    with open('EDFig4.txt', 'r') as f:
-        with open('EDFig4.csv', 'w') as g:
-            g.write('"Source Data for Extended Data Fig. 4"\n')
+    np.savetxt('EDFig5.txt', [delta(var) for var in variables], delimiter = ',', fmt = '%6.3f')
+    with open('EDFig5.txt', 'r') as f:
+        with open('EDFig5.csv', 'w') as g:
+            g.write('"Source Data for Extended Data Fig. 5"\n')
             g.write('"Each line is one panel; each value is the change in each grid box ' \
                     'of the ISCCP equal-area grid between 30°N/S."\n')
             g.write(f.read())
-    os.remove('EDFig4.txt')
+    os.remove('EDFig5.txt')
 
-if 'EDFig5' in option:
+if 'EDFig3' in option:
 
-    # Note: this option only produces the CSV files. To produce the table image, use the spreadsheet.
+    '''Note: this option only produces the CSV files. To produce the table 
+       image, use the spreadsheet to produce a PDF, then use the ImageMagick 
+       command "convert -density 300 -trim EDFig3.pdf EDFig3.jpg" to convert
+       it to jpeg.'''
 
     data = []
 
@@ -660,19 +665,19 @@ if 'EDFig5' in option:
     with open('tab_Fig4.txt', 'r') as f:
         Fig4 = [ii.split() for ii in f.readlines()]
 
-    with open('tab_EDFig3.txt', 'r') as f:
-        EDFig3 = [ii.split() for ii in f.readlines()]
+    with open('tab_EDFig4.txt', 'r') as f:
+        EDFig4 = [ii.split() for ii in f.readlines()]
 
     data.append([float(ii) for ii in Fig3[3][2:]])
     data.append([float(ii[1]) for ii in Fig3[4 : 8]])
     data.append([float(ii) for ii in Fig4[3][2:]])
     data.append([float(ii[1]) for ii in Fig4[4 : 6]])
-    data.append([float(ii) for ii in EDFig3[3][2:]])
-    data.append([float(ii[1]) for ii in EDFig3[4 : 8]])
+    data.append([float(ii) for ii in EDFig4[3][2:]])
+    data.append([float(ii[1]) for ii in EDFig4[4 : 8]])
 
     # print to CSV file at %6.2f precision
-    with open('EDFig5.csv', 'w') as f:
+    with open('EDFig3.csv', 'w') as f:
         w = csv.writer(f)
-        w.writerow(['"Source Data for Extended Data Fig. 5"'])
-        w.writerow(['"Correlations and RMSEs for Figs. 3, 4 and Extended Fig. 3"'])
+        w.writerow(['"Source Data for Extended Data Fig. 3"'])
+        w.writerow(['"Correlations and RMSEs for Figs. 3, 4 and Extended Fig. 4"'])
         w.writerows(data)
